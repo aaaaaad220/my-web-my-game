@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تخمين اللاعب</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background: linear-gradient(45deg, #68ad77, #7bfec5); }
+            50% { background: linear-gradient(45deg, #6a11cb, #2575fc); }
+            100% { background: linear-gradient(45deg, #5c8ca0, #1e4761); }
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: space-between;
+            width: 30%;
+            height: 70vh;
+            background: linear-gradient(45deg, #9103ef, #dd0c8d);
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .game-content {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #ff6347;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-section {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .answer-section {
+            margin-top: 20px;
+        }
+
+        input {
+            padding: 12px;
+            width: 60%;
+            margin-right: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            border-color: #ff6347;
+            background-color: #ffe4e1;
+            outline: none;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 8px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0933ed;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* طريقة اللعب */
+        .instructions-container {
+            width: 25%;
+            background: linear-gradient(45deg, #09f8d9, #0aef1d);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            animation: slideAnimation 5s ease infinite;
+            font-size: 18px;
+            line-height: 1.6;
+            color: blue;
+        }
+        .instructions-container p:hover {
+            color:  #11f9e2;
+        }
+
+
+        @keyframes slideAnimation {
+            0% { transform: translateX(10px); }
+            50% { transform: translateX(-10px); }
+            100% { transform: translateX(10px); }
+        }
+
+        .timer {
+            font-size: 20px;
+            color: #186055;
+            margin-top: 20px;
+        }
+
+        /* مربع الأسئلة الجانبي */
+        .question-list {
+            width: 25%;
+            background: linear-gradient(45deg, #09f8d9, #0aef1d);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 18px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 100%;
+            margin-right: 20px;
+            animation: slideAnimation 5s ease infinite;
+
+
+        }
+
+        .question-list p {
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: red;
+
+        }
+
+        .question-list p:hover {
+            color: #11f9e2;
+            text-decoration: underline;
+        }
+
+        .answer-box {
+            width: 30%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 18px;
+            line-height: 1.6;
+            max-height: 100%;
+            overflow-y: auto;
+            animation: colorAnimation 3s infinite alternate;
+        }
+
+        @keyframes colorAnimation {
+            0% { background: linear-gradient(45deg, #ff6347, #ff4500); }
+            50% { background: linear-gradient(45deg, #6a11cb, #2575fc); }
+            100% { background: linear-gradient(45deg, #ff6347, #ff4500); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- طريقة اللعب -->
+        <div class="instructions-container">
+            <h2>طريقة اللعب</h2>
+            <p>في هذه اللعبة، يمكنك طرح أسئلة عن اللاعب لكي تخمن من هو.</p>
+            <p>كلما طرحت سؤالًا دقيقًا، ستحصل على إجابة من البوت.</p>
+            <p>كل دقيقة سيتغير اللاعب، لذلك حاول تخمينه بسرعة!</p>
+            <p>الحد الأقصى للأسئلة التي يمكن طرحها هو 5 أسئلة لكل لاعب.</p>
+        </div>
+
+        <div  id="start-button-div">
+            <button style="background:#6a11cb;" id="start-button" onclick="startGame()">ابدأ اللعبة</button>
+        </div>
+
+                <!-- طريقة اللعب -->
+
+
+        <!-- مربع الأسئلة الجانبي -->
+        <div class="question-list">
+            <h3>الأسئلة التي يمكن طرحها:</h3>
+            <p onclick="askSpecificQuestion('ما هو فريقه؟')">ما هو فريقه؟</p>
+            <p onclick="askSpecificQuestion('ما هو مركزه؟')">ما هو مركزه؟</p>
+            <p onclick="askSpecificQuestion('ما هي جنسيته؟')">ما هي جنسيته؟</p>
+            <p onclick="askSpecificQuestion('ما هو عمره؟')">ما هو عمره؟</p>
+            <p onclick="askSpecificQuestion('متى بدأ مسيرته؟')">متى بدأ مسيرته؟</p>
+            <p onclick="askSpecificQuestion('هل سجل أهدافًا هذا الموسم؟')">هل سجل أهدافًا هذا الموسم؟</p>
+            <p onclick="askSpecificQuestion('ما هو رقم قميصه؟')">ما هو رقم قميصه؟</p>
+            <p onclick="askSpecificQuestion('ما هي أكبر إنجازاته؟')">ما هي أكبر إنجازاته؟</p>
+            <p onclick="askSpecificQuestion('ما هي المدينة التي ولد فيها؟')">ما هي المدينة التي ولد فيها؟</p>
+            <p onclick="askSpecificQuestion('هل فاز بجائزة الكرة الذهبية؟')">هل فاز بجائزة الكرة الذهبية؟</p>
+            <p onclick="askSpecificQuestion('ما هو وزنه؟')">ما هو وزنه؟</p>
+            <p onclick="askSpecificQuestion('كم عدد الأهداف التي سجلها هذا الموسم؟')">كم عدد الأهداف التي سجلها هذا الموسم؟</p>
+            <p onclick="askSpecificQuestion('ما هي أندية أخرى التي لعب لها؟')">ما هي أندية أخرى التي لعب لها؟</p>
+            <p onclick="askSpecificQuestion('ما هي ميزة لعبه المميزة؟')">ما هي ميزة لعبه المميزة؟</p>
+            <p onclick="askSpecificQuestion('هل لعب في الدوري الإنجليزي؟')">هل لعب في الدوري الإنجليزي؟</p>
+        </div>
+
+        <!-- المحتوى الخاص باللعبة -->
+        <div class="game-content" id="game-content" style="display: none;">
+            <h1   >لعبة تخمين اللاعب</h1>
+
+            <div class="question-section">
+                <input type="text" id="user-question" placeholder="اكتب سؤالك هنا..." />
+                <button onclick="askQuestion()">اسأل البوت</button>
+            </div>
+
+            <div class="answer-section">
+                <input type="text" id="user-answer" placeholder="خمن اسم اللاعب هنا..." />
+                <button onclick="checkAnswer()">خمن اسم اللاعب</button>
+            </div>
+
+            <div class="result-section">
+                <p>عدد الإجابات الصحيحة: <span id="score">0</span></p>
+            </div>
+
+            <div class="timer">
+                <p>الوقت المتبقي: <span id="countdown">60</span> ثانية</p>
+            </div>
+
+            <!-- مربع الإجابات -->
+            <div class="answer-box" id="answer-box">
+                <p>إجابة البوت ستظهر هنا...</p>
+            </div>
+
+            <button id="next-player-button" onclick="nextPlayer()" style="display:none;">تغيير اللاعب</button>
+        </div>
+    </div>
+
+    <script>
+        const players = [
+        { name: " بنزيما", team: "الاتحاد", position: "مهاجم", nationality: "فرنسي", age: 36 },
+            { name: "كريم بنزيما", team: "الاتحاد", position: "مهاجم", nationality: "فرنسي", age: 36 },
+            { name: "محمد صلاح", team: "ليفربول", position: "جناح", nationality: "مصري", age: 31 },
+            { name: " صلاح", team: "ليفربول", position: "جناح", nationality: "مصري", age: 31 },
+            { name: "محمد ", team: "ليفربول", position: "جناح", nationality: "مصري", age: 31 },
+            { name: " ميسي", team: "إنتر ميامي", position: "مهاجم", nationality: "أرجنتيني", age: 36 },
+            { name: "ليونيل ميسي", team: "إنتر ميامي", position: "مهاجم", nationality: "أرجنتيني", age: 36 },
+            { name: "رونالدو", team: "النصر", position: "مهاجم", nationality: "برتغالي", age: 39 },
+            { name: "كريستيامو رونالدو  ", team: "النصر", position: "مهاجم", nationality: "برتغالي", age: 39 },
+            { name: "إيرلينغ هالاند", team: "مانشستر سيتي", position: "مهاجم", nationality: "نرويجي", age: 23 },
+            { name: "نيمار", team: "الهلال", position: "جناح", nationality: "برازيلي", age: 32 },
+            { name: "كيليان مبابي", team: "باريس سان جيرمان", position: "مهاجم", nationality: "فرنسي", age: 25 },
+            { name: " مبابي", team: "باريس سان جيرمان", position: "مهاجم", nationality: "فرنسي", age: 25 },
+            { name: "كيفين دي بروين", team: "مانشستر سيتي", position: "وسط", nationality: "بلجيكي", age: 33 },
+            { name: "دبروين", team: "مانشستر سيتي", position: "وسط", nationality: "بلجيكي", age: 33 },
+            { name: "إدين هازارد", team: "ريال مدريد", position: "جناح", nationality: "بلجيكي", age: 33 },
+            { name: " هازارد", team: "ريال مدريد", position: "جناح", nationality: "بلجيكي", age: 33 },
+            { name: "بول بوجبا", team: "يوفنتوس", position: "وسط", nationality: "فرنسي", age: 31 },
+            { name: "إيميريك لابورت", team: "مانشستر سيتي", position: "مدافع", nationality: "فرنسي", age: 30 },
+            { name: "فينيسيوس جونيور", team: "ريال مدريد", position: "جناح", nationality: "برازيلي", age: 23 },
+            { name: "فينيسيوس ", team: "ريال مدريد", position: "جناح", nationality: "برازيلي", age: 23 },
+            { name: "دييغو غودين", team: "فياريال", position: "مدافع", nationality: "أوروغوياني", age: 38 },
+            { name: "ماتيس دي ليخت", team: "بايرن ميونيخ", position: "مدافع", nationality: "هولندي", age: 24 },
+            { name: "فرانك كييسي", team: "برشلونة", position: "وسط", nationality: "إيفواري", age: 27 }
+        ];
+    
+        let currentPlayer = {};
+        let score = 0;
+        let countdown = 60;
+        let timer;
+    
+        function startGame() {
+            document.getElementById("start-button-div").style.display = "none";
+            document.getElementById("game-content").style.display = "block";
+            nextPlayer();
+            startTimer();
+        }
+    
+        function nextPlayer() {
+            currentPlayer = players[Math.floor(Math.random() * players.length)];
+            document.getElementById("countdown").innerText = countdown;
+            document.getElementById("answer-box").innerHTML = "<p>إجابة البوت ستظهر هنا...</p>";
+            document.getElementById("next-player-button").style.display = "none";
+        }
+    
+        function startTimer() {
+            countdown = 60;
+            timer = setInterval(function() {
+                countdown--;
+                document.getElementById("countdown").innerText = countdown;
+                if (countdown === 0) {
+                    clearInterval(timer);
+                    document.getElementById("next-player-button").style.display = "block";
+                }
+            }, 1000);
+        }
+    
+        function askQuestion() {
+            const userQuestion = document.getElementById("user-question").value.trim().toLowerCase();
+            let answer = "سؤال غير صحيح. حاول سؤال آخر.";
+    
+            // معالجة الأسئلة بناءً على الكلمات المفتاحية
+            if (userQuestion.includes("فريقه") || userQuestion.includes("المنتخب")) {
+                answer = currentPlayer.team;
+            } else if (userQuestion.includes("جنسيت")) {
+                answer = currentPlayer.nationality;
+            } else if (userQuestion.includes("عمره")) {
+                answer = currentPlayer.age;
+            } else if (userQuestion.includes("مركزه")) {
+                answer = currentPlayer.position;
+            } else if (userQuestion.includes("متى بدأ مسيرته")) {
+                answer = "بدأ مسيرته الاحترافية في سن صغير، ولكن التفاصيل تختلف حسب اللاعب.";
+            } else if (userQuestion.includes("هل سجل أهدافًا هذا الموسم")) {
+                answer = "نعم، سجل العديد من الأهداف هذا الموسم.";
+            } else if (userQuestion.includes("ما هو رقم قميصه")) {
+                answer = "رقم قميصه يختلف حسب اللاعب.";
+            } else if (userQuestion.includes("ما هي أكبر إنجازاته")) {
+                answer = "إنجازاته تتفاوت، ولكن يعد الفوز بجائزة أفضل لاعب من أبرزها.";
+            } else if (userQuestion.includes("ما هي المدينة التي ولد فيها")) {
+                answer = "تختلف المدينة حسب اللاعب.";
+            } else if (userQuestion.includes("هل فاز بجائزة الكرة الذهبية")) {
+                answer = "نعم، فاز بها عدة مرات.";
+            }
+    
+            document.getElementById("answer-box").innerHTML = `<p>${answer}</p>`;
+        }
+    
+        function checkAnswer() {
+            const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
+            if (userAnswer === currentPlayer.name.toLowerCase()) {
+                score++;
+                document.getElementById("score").innerText = score;
+                alert("إجابة صحيحة!");
+            } else {
+                alert("إجابة خاطئة!");
+            }
+        }
+    
+        function askSpecificQuestion(question) {
+            alert("سؤالك: " + question);
+            document.getElementById("user-question").value = question;
+            askQuestion();
+        }
+    </script>
+    </body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المهام</title>
+    <link rel="icon" href="تنزيل.jpg">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: linear-gradient(45deg, #A1C4FD, #3A6EA5); /* الأزرق الفاتح إلى الأزرق الغامق */
+            background-size: 400% 400%;
+            animation: gradientBG 30s ease infinite; /* التحريك التدريجي */
+            transition: background 1s ease; /* التغيير السلس */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        .task-form {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .task-form input, .task-form button {
+            padding: 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .task-form input {
+            width: 70%;
+            background-color: #f9f9f9;
+        }
+
+        .task-form button {
+            width: 25%;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .task-form button:hover {
+            background-color: #45a049;
+        }
+
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .task-item span {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .task-item.completed span {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-left: 10px;
+        }
+
+        .task-item button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .task-item button:hover {
+            background-color: #e53935;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        /* أزرار لاختيار الألوان */
+        .color-picker {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .color-picker input[type="color"] {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* تأثير التدرج المتحرك */
+        @keyframes gradientBG {
+            0% {
+                background: linear-gradient(45deg, #A1C4FD, #3A6EA5); /* الأزرق الفاتح إلى الأزرق الغامق */
+            }
+            25% {
+                background: linear-gradient(45deg, #A1C4FD, #6A98C8); /* التدرج إلى الأزرق الفاتح والغامق أكثر */
+            }
+            50% {
+                background: linear-gradient(45deg, #3A6EA5, #A1C4FD); /* التبديل بين الأزرقين */
+            }
+            75% {
+                background: linear-gradient(45deg, #6A98C8, #3A6EA5); /* التدرج إلى الأزرق الغامق */
+            }
+            100% {
+                background: linear-gradient(45deg, #A1C4FD, #3A6EA5); /* العودة للتدرج الأول */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>إدارة المهام</h1>
+    
+    <!-- نموذج إضافة المهمة -->
+    <div class="task-form">
+        <input type="text" id="task-name" placeholder="أدخل اسم المهمة" required>
+        <button id="add-task">إضافة المهمة</button>
+    </div>
+    
+    <!-- قائمة المهام -->
+    <ul id="task-list" class="task-list"></ul>
+
+    <!-- حقول لاختيار اللونين -->
+    <div class="color-picker">
+        <label for="color1">اختار اللون الأول:</label>
+        <input type="color" id="color1" value="#A1C4FD">
+        <label for="color2">اختار اللون الثاني:</label>
+        <input type="color" id="color2" value="#3A6EA5">
+    </div>
+</div>
+
+<!-- تذييل الصفحة -->
+<footer>
+    <p>Dev Faris</p>
+</footer>
+
+<script>
+    // محاكاة قاعدة بيانات في الذاكرة باستخدام Local Storage
+    if (!localStorage.getItem('tasks')) {
+        localStorage.setItem('tasks', JSON.stringify([])); // إذا لم تكن هناك مهام محفوظة
+    }
+
+    let tasks = JSON.parse(localStorage.getItem('tasks'));
+
+    // دالة لعرض المهام في القائمة
+    function displayTasks() {
+        const taskList = document.getElementById("task-list");
+        taskList.innerHTML = ''; // مسح المحتوى الحالي للقائمة
+        
+        tasks.forEach((task, index) => {
+            const taskItem = document.createElement("li");
+            taskItem.classList.add("task-item");
+            if (task.completed) taskItem.classList.add("completed");
+
+            const taskName = document.createElement("span");
+            taskName.textContent = task.name;
+
+            const taskCheckbox = document.createElement("input");
+            taskCheckbox.type = "checkbox";
+            taskCheckbox.checked = task.completed;
+            taskCheckbox.onclick = () => toggleTaskStatus(index);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "حذف";
+            deleteButton.onclick = () => deleteTask(index);
+
+            taskItem.appendChild(taskName);
+            taskItem.appendChild(taskCheckbox);
+            taskItem.appendChild(deleteButton);
+            taskList.appendChild(taskItem);
+        });
+    }
+
+    // دالة لإضافة مهمة جديدة
+    document.getElementById("add-task").onclick = function () {
+        const taskNameInput = document.getElementById("task-name");
+        const taskName = taskNameInput.value.trim();
+
+        if (taskName) {
+            tasks.push({ name: taskName, completed: false });
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // حفظ المهام في Local Storage
+            taskNameInput.value = ''; // مسح حقل الإدخال
+            displayTasks();
+        }
+    }
+
+    // دالة لتغيير حالة المهمة إلى مكتملة أو غير مكتملة
+    function toggleTaskStatus(index) {
+        tasks[index].completed = !tasks[index].completed;
+        localStorage.setItem('tasks', JSON.stringify(tasks)); // حفظ التغييرات
+        displayTasks();
+    }
+
+    // دالة لحذف مهمة
+    function deleteTask(index) {
+        tasks.splice(index, 1);
+        localStorage.setItem('tasks', JSON.stringify(tasks)); // حفظ التغييرات
+        displayTasks();
+    }
+
+    // دالة لتغيير الألوان الخلفية المتحركة بناءً على اختيار المستخدم
+    function updateBackgroundColors() {
+        const color1 = document.getElementById("color1").value;
+        const color2 = document.getElementById("color2").value;
+
+        document.body.style.background = `linear-gradient(45deg, ${color1}, ${color2})`;
+        document.body.style.animation = "none"; // إيقاف التحريك المؤقت
+        setTimeout(() => {
+            document.body.style.animation = "gradientBG 30s ease infinite"; // إعادة تفعيل التحريك
+        }, 10);
+    }
+
+    // إضافة مستمعين لتغيير الألوان عند اختيار المستخدم
+    document.getElementById("color1").addEventListener("input", updateBackgroundColors);
+    document.getElementById("color2").addEventListener("input", updateBackgroundColors);
+
+    // عرض المهام عند تحميل الصفحة
+    displayTasks();
+</script>
+
+</body>
+</html>
